@@ -1,0 +1,5 @@
+{
+  "name": "NanoCanvas",
+  "description": "An advanced AI image editing application powered by Gemini 2.5 Flash Image (Nano Banana). Upload an image and use text prompts to transform it instantly.",
+  "requestFramePermissions": []
+}
