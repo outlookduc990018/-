@@ -1,5 +1,5 @@
 {
-  "name": "NanoCanvas",
-  "description": "An advanced AI image editing application powered by Gemini 2.5 Flash Image (Nano Banana). Upload an image and use text prompts to transform it instantly.",
+  "name": "OpenMAIC",
+  "description": "Open Multi-Agent Interactive Classroom. Describe any topic and AI agents — a teacher and classmates — generate an immersive lesson with slides, quizzes, and live discussion. Powered by Gemini.",
   "requestFramePermissions": []
 }
