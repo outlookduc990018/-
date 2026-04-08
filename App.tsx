@@ -1,55 +1,82 @@
-import React from 'react';
-import Editor from './components/Editor';
+import React, { useState } from 'react';
+import { Classroom, AppView } from './types';
+import { generateClassroom } from './services/classroomService';
+import ClassroomGenerator from './components/ClassroomGenerator';
+import ClassroomPlayer from './components/ClassroomPlayer';
 
 function App() {
+  const [view, setView] = useState<AppView>(AppView.HOME);
+  const [classroom, setClassroom] = useState<Classroom | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleGenerate = async (topic: string) => {
+    setView(AppView.GENERATING);
+    setError(null);
+    try {
+      const result = await generateClassroom(topic);
+      setClassroom(result);
+      setView(AppView.CLASSROOM);
+    } catch (err: any) {
+      setError(err instanceof Error ? err.message : 'Failed to generate classroom. Please try again.');
+      setView(AppView.HOME);
+    }
+  };
+
+  const handleExit = () => {
+    setClassroom(null);
+    setView(AppView.HOME);
+    setError(null);
+  };
+
+  // Classroom view takes over the full page
+  if (view === AppView.CLASSROOM && classroom) {
+    return <ClassroomPlayer classroom={classroom} onExit={handleExit} />;
+  }
+
   return (
-    <div className="min-h-screen bg-[#0f172a] text-white font-sans selection:bg-brand-500/30">
+    <div className="min-h-screen bg-[#0f172a] text-white font-sans selection:bg-brand-500/30 flex flex-col">
       {/* Navbar */}
       <nav className="border-b border-slate-800 bg-slate-900/50 backdrop-blur-lg sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-gradient-to-br from-brand-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-brand-500/20">
-                <span className="text-white font-bold text-lg">N</span>
+                <span className="text-white font-bold text-lg">M</span>
               </div>
-              <span className="font-bold text-xl tracking-tight text-slate-100">NanoCanvas</span>
+              <span className="font-bold text-xl tracking-tight text-slate-100">OpenMAIC</span>
             </div>
             <div className="flex items-center gap-4">
-                <a 
-                  href="https://ai.google.dev/gemini-api/docs/models/gemini-v2" 
-                  target="_blank" 
-                  rel="noreferrer"
-                  className="text-sm text-slate-400 hover:text-brand-400 transition-colors"
-                >
-                  Docs
-                </a>
-                <div className="h-4 w-[1px] bg-slate-700"></div>
-                <span className="text-xs font-mono text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded">Gemini 2.5 Flash</span>
+              <span className="text-xs font-mono text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded">
+                Gemini 2.0 Flash
+              </span>
             </div>
           </div>
         </div>
       </nav>
 
-      {/* Main Content */}
-      <main className="py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
-            <div className="text-center mb-10">
-                <h1 className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-slate-100 to-slate-500 mb-4">
-                    Edit Images with Words
-                </h1>
-                <p className="text-lg text-slate-400 max-w-2xl mx-auto">
-                    Upload an image and describe the changes you want. Whether it's adding objects, changing styles, or fixing details, <span className="text-brand-400">Nano Banana</span> handles it instantly.
-                </p>
-            </div>
-            
-            <Editor />
+      {/* Error banner */}
+      {error && (
+        <div className="bg-red-500/10 border-b border-red-500/30 text-red-400 px-4 py-3 text-sm text-center">
+          {error}
+          <button onClick={() => setError(null)} className="ml-3 underline hover:text-red-300">Dismiss</button>
         </div>
+      )}
+
+      {/* Main */}
+      <main className="flex-1">
+        <ClassroomGenerator
+          onGenerate={handleGenerate}
+          isGenerating={view === AppView.GENERATING}
+        />
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800 bg-slate-900 py-8 mt-auto">
+      <footer className="border-t border-slate-800 bg-slate-900 py-6">
         <div className="max-w-7xl mx-auto px-4 text-center text-slate-500 text-sm">
-          <p>&copy; {new Date().getFullYear()} NanoCanvas. Built with React, Tailwind & Google Gemini.</p>
+          <p>
+            &copy; {new Date().getFullYear()} OpenMAIC — Open Multi-Agent Interactive Classroom.
+            Powered by React &amp; Google Gemini.
+          </p>
         </div>
       </footer>
     </div>
